@@ -12,7 +12,7 @@ declare global {
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const header = req.header('authorization');
   const match = header?.match(/^Bearer\s+(.+)$/i);
-  if (!match) {
+  if (!match || !match[1]) {
     res.status(401).json({ error: 'Authentication required' });
     return;
   }
