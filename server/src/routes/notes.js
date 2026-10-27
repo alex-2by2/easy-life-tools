@@ -1,0 +1,5 @@
+import {Router} from 'express';import mongoose from 'mongoose';import Note from '../models/Note.js';import {requireAuth} from '../middleware/auth.js';
+const r=Router();r.use(requireAuth);
+r.get('/',async(req,res,next)=>{try{res.json({items:await Note.find({userId:req.user._id}).sort({createdAt:-1}).limit(200)})}catch(e){next(e)}});
+r.post('/',async(req,res,next)=>{try{const text=typeof req.body.text==='string'?req.body.text.trim():'';if(!text||text.length>3000)return res.status(400).json({message:'Note must be 1–3000 characters'});res.status(201).json({item:await Note.create({userId:req.user._id,text})})}catch(e){next(e)}});
+r.delete('/:id',async(req,res,next)=>{try{if(!mongoose.isValidObjectId(req.params.id))return res.status(400).json({message:'Invalid note ID'});const item=await Note.findOneAndDelete({_id:req.params.id,userId:req.user._id});if(!item)return res.status(404).json({message:'Note not found'});res.status(204).end()}catch(e){next(e)}});export default r;
