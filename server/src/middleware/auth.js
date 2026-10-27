@@ -1,0 +1,4 @@
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+export async function requireAuth(req,res,next){try{const token=req.cookies?.elt_session;if(!token)return res.status(401).json({message:'Please log in to continue'});const p=jwt.verify(token,process.env.JWT_SECRET,{algorithms:['HS256']});const user=await User.findById(p.sub).select('name email role plan status');if(!user||user.status!=='active')return res.status(401).json({message:'Account is unavailable'});req.user=user;next()}catch{return res.status(401).json({message:'Session expired. Please log in again.'})}}
+export function requireOwner(req,res,next){if(req.user?.role!=='owner')return res.status(403).json({message:'Owner access required'});next()}
