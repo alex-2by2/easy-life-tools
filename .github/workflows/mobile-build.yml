@@ -1,0 +1,63 @@
+name: Mobile build verification
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  android-debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+      - name: Install frontend dependencies
+        working-directory: client
+        run: npm install
+      - name: Build web app
+        working-directory: client
+        run: npm run build
+      - name: Generate Android project and sync
+        working-directory: client
+        run: |
+          npx cap add android
+          npx cap sync android
+      - name: Build debug APK
+        working-directory: client/android
+        run: ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: easy-life-tools-android-debug
+          path: client/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+  ios-simulator:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+      - name: Install frontend dependencies
+        working-directory: client
+        run: npm install
+      - name: Build web app
+        working-directory: client
+        run: npm run build
+      - name: Generate iOS project and sync
+        working-directory: client
+        run: |
+          npx cap add ios
+          npx cap sync ios
+      - name: Build iOS simulator app
+        working-directory: client
+        run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App -sdk iphonesimulator -configuration Debug CODE_SIGNING_ALLOWED=NO build
