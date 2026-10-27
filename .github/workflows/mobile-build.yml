@@ -16,13 +16,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: client/package-lock.json
       - name: Install frontend dependencies
         working-directory: client
         run: npm install
       - name: Build web app
         working-directory: client
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL || 'https://api.example.invalid/api' }}
         run: npm run build
       - name: Generate Android project and sync
         working-directory: client
@@ -52,6 +52,8 @@ jobs:
         run: npm install
       - name: Build web app
         working-directory: client
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL || 'https://api.example.invalid/api' }}
         run: npm run build
       - name: Generate iOS project and sync
         working-directory: client
