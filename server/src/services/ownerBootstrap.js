@@ -1,0 +1,3 @@
+import bcrypt from 'bcryptjs';
+import User from '../models/User.js';
+export async function ensureOwnerAccount(){const email=process.env.OWNER_EMAIL?.trim().toLowerCase(),password=process.env.OWNER_PASSWORD;if(!email||!password){console.warn('Owner bootstrap skipped: OWNER_EMAIL/OWNER_PASSWORD not configured');return}if(password.length<14)throw new Error('OWNER_PASSWORD must be at least 14 characters');if(await User.exists({role:'owner'}))return;if(await User.exists({email}))throw new Error('OWNER_EMAIL already belongs to a non-owner account');await User.create({name:'Owner',email,passwordHash:await bcrypt.hash(password,12),role:'owner',plan:'premium'});console.log('Initial owner account created. Change deployment secret after setup.')}
