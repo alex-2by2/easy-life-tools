@@ -74,4 +74,4 @@ jobs:
           npx cap sync ios
       - name: Build iOS simulator app
         working-directory: client
-        run: xcodebuild -workspace ios/App/App.xcworkspace -scheme App -sdk iphonesimulator -configuration Debug CODE_SIGNING_ALLOWED=NO build
+        run: xcodebuild -project ios/App/App.xcodeproj -scheme App -sdk iphonesimulator -configuration Debug CODE_SIGNING_ALLOWED=NO build
