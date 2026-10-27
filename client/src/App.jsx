@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-const API = (import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:4000/api' : '/api')).replace(/\\/$/, '');
+const API = (import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:4000/api' : '/api')).replace(/\/$/, '');
 async function api(path, options={}) {
  const r=await fetch(API+path,{credentials:'include',...options,headers:{'Content-Type':'application/json',...(options.headers||{})}});
  const data=await r.json().catch(()=>({}));
@@ -26,14 +26,14 @@ export default function App(){
  {tab==='home'&&<><section className="hero"><p className="eyebrow">A FRESH START, EVERY DAY</p><h1>Make room for what matters.</h1><p>Small steps. Clear mind. A little more ease.</p></section><section className="stats"><article><span>✓</span><p>Tasks to do</p><strong>{tasks.filter(t=>!t.completed).length}</strong></article><article><span>▤</span><p>Quick notes</p><strong>{notes.length}</strong></article><article><span>✦</span><p>Completed</p><strong>{tasks.filter(t=>t.completed).length}</strong></article></section><div className="grid"><section className="panel"><h3>Today's tasks</h3><TaskList tasks={tasks.slice(0,5)} toggle={toggle} del={delTask}/><form className="inline" onSubmit={addTask}><input value={task} onChange={e=>setTask(e.target.value)} placeholder="Add a task…" maxLength="160"/><button>+</button></form></section><section className="panel"><h3>Quick notes</h3><form onSubmit={addNote}><textarea rows="3" value={note} onChange={e=>setNote(e.target.value)} placeholder="Write a quick note…" maxLength="3000"/><button className="secondary">Save note</button></form>{notes.slice(0,3).map(n=><p className="note" key={n._id}>{n.text}</p>)}</section></div></>}
  {tab==='tasks'&&<section className="panel"><h3>All tasks</h3><TaskList tasks={tasks} toggle={toggle} del={delTask}/><form className="inline" onSubmit={addTask}><input value={task} onChange={e=>setTask(e.target.value)} placeholder="Add a task…" maxLength="160"/><button>+</button></form></section>}
  {tab==='notes'&&<section className="panel"><h3>Your notes</h3><form onSubmit={addNote}><textarea rows="4" value={note} onChange={e=>setNote(e.target.value)} placeholder="Write something worth remembering…" maxLength="3000" required/><button className="secondary">Save note</button></form>{notes.map(n=><article className="note" key={n._id}><p>{n.text}</p><small>{new Date(n.createdAt).toLocaleString()}</small></article>)}</section>}
- {tab==='calculator'&&<section className="panel calculator"><h3>Simple calculator</h3><p className="muted">Basic arithmetic, calculated on this device.</p><input value={calc} onChange={e=>setCalc(e.target.value.replace(/[^0-9+\-*/(). %]/g,''))} placeholder="Example: 25 * (4 + 2)"/><button onClick={()=>{try{if(!calc.trim()||!/^[0-9+\-*/(). %]+$/.test(calc))throw Error();const v=calculateExpression(calc);if(!Number.isFinite(v))throw Error();setResult(String(v))}catch{setResult('Invalid expression')}}}>Calculate</button>{result&&<h2>{result}</h2>}</section>}
+ {tab==='calculator'&&<section className="panel calculator"><h3>Simple calculator</h3><p className="muted">Basic arithmetic, calculated on this device.</p><input value={calc} onChange={e=>setCalc(e.target.value.replace(/[^0-9+\-*\/(). %]/g,''))} placeholder="Example: 25 * (4 + 2)"/><button onClick={()=>{try{if(!calc.trim())throw Error();const v=calculateExpression(calc);if(!Number.isFinite(v))throw Error();setResult(String(v))}catch{setResult('Invalid expression')}}}>Calculate</button>{result&&<h2>{result}</h2>}</section>}
  {tab==='owner'&&user.role==='owner'&&<OwnerPanel/>}<footer>Easy Life Tools · Your everyday toolkit</footer></main><nav className="mobile-nav">{[['home','⌂','Home'],['tasks','✓','Tasks'],['notes','▤','Notes'],['calculator','＋','Tools']].map(([id,icon,label])=><button key={id} onClick={()=>setTab(id)}>{icon}<small>{label}</small></button>)}</nav></div>;
 }
 function TaskList({tasks,toggle,del}){return tasks.length?<div>{tasks.map(t=><div className="task" key={t._id}><button className={'check '+(t.completed?'done':'')} onClick={()=>toggle(t)}>{t.completed?'✓':''}</button><span className={t.completed?'completed':''}>{t.title}</span><button className="remove" onClick={()=>del(t._id)}>×</button></div>)}</div>:<p className="muted empty">No tasks yet. Add a small goal to get started.</p>}
 function OwnerPanel(){const [users,setUsers]=useState([]),[err,setErr]=useState('');useEffect(()=>{api('/admin/users').then(x=>setUsers(x.users)).catch(e=>setErr(e.message))},[]);return <section className="panel"><h3>Registered users</h3>{err&&<p className="error">{err}</p>}<div className="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Plan</th><th>Status</th></tr></thead><tbody>{users.map(u=><tr key={u._id}><td>{u.name}</td><td>{u.email}</td><td>{u.role}</td><td>{u.plan}</td><td>{u.status}</td></tr>)}</tbody></table></div></section>}
 function calculateExpression(expression) {
-  const tokens = expression.match(/(?:\\d+\\.?\\d*|\\.\\d+)|[()+*/%-]|-/g) || [];
-  const source = expression.replace(/\\s/g, '');
+  const tokens = expression.match(/(?:\d+\.?\d*|\.\d+)|[()+*\/%-]/g) || [];
+  const source = expression.replace(/\s/g, '');
   if (!source || tokens.join('') !== source) throw new Error('Invalid expression');
   let index = 0;
   function primary() {
@@ -46,7 +46,7 @@ function calculateExpression(expression) {
       return value;
     }
     const token = tokens[index++];
-    if (!token || !/^(?:\\d+\\.?\\d*|\\.\\d+)$/.test(token)) throw new Error('Expected number');
+    if (!token || !/^(?:\d+\.?\d*|\.\d+)$/.test(token)) throw new Error('Expected number');
     return Number(token);
   }
   function product() {
