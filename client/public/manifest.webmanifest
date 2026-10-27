@@ -1,0 +1,10 @@
+{
+  "name": "Easy Life Tools",
+  "short_name": "Easy Life",
+  "description": "Everyday tools in one place.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#6257e8",
+  "orientation": "portrait-primary"
+}
