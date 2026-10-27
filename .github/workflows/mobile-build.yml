@@ -9,6 +9,20 @@ permissions:
   contents: read
 
 jobs:
+  backend-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install API dependencies
+        working-directory: server
+        run: npm install
+      - name: Check API JavaScript syntax
+        working-directory: server
+        run: npm run check
+
   android-debug:
     runs-on: ubuntu-latest
     steps:
@@ -39,7 +53,7 @@ jobs:
           if-no-files-found: error
 
   ios-simulator:
-    runs-on: macos-26
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
