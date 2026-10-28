@@ -20,12 +20,12 @@ The rebuild is being developed on `feat/flutter-firebase-rebuild` so the existin
 
 ## Required setup (manual console steps)
 
-1. Create a Firebase project in the Firebase console.
+1. Use the provided Firebase project `management-tool-be37b`: https://console.firebase.google.com/project/management-tool-be37b/overview. Confirm it is intended for Easy Life Tools before enabling providers.
 2. In Authentication → Sign-in method, enable **Email/Password** and **Google**.
 3. Register Android package ID and iOS bundle ID as `com.keynoteinfotech.easylifetools`. Add Android debug/release SHA-1 and SHA-256 fingerprints in Firebase.
 4. From `apps/mobile/`, run `dart pub global activate flutterfire_cli` and `flutterfire configure`. This generates the local `lib/firebase_options.dart` required to run the app. Do not share service-account private keys.
 5. Create/configure MongoDB Atlas, create a least-privilege database user, and allow network access only as required by the deployment.
-6. Copy `backend/.env.example` to `backend/.env`, set `MONGODB_URI`, `FIREBASE_PROJECT_ID`, and exact comma-separated `CORS_ORIGINS`.
+6. Copy `backend/.env.example` to `backend/.env`, set `MONGODB_URI`, `FIREBASE_PROJECT_ID=management-tool-be37b`, and exact comma-separated `CORS_ORIGINS`.
 7. For local Firebase Admin authentication, use Application Default Credentials (for example `gcloud auth application-default login`) or configure `GOOGLE_APPLICATION_CREDENTIALS` to a service-account JSON file stored outside Git. In production, prefer the hosting platform's workload identity/application credentials.
 8. In `backend/`, run `npm install`, `npm run check`, `npm run build`, then `npm run dev`.
 9. Run the mobile app with `flutter pub get` and `flutter run`. Verify Google sign-in on physical Android and iOS devices.
